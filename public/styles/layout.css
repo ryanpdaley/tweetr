@@ -80,6 +80,7 @@ main.container {
 }
 
 .tweet .tweetText {
+  font-size: large;
 }
 
 .tweet footer {
