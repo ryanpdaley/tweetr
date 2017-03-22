@@ -19,11 +19,11 @@
 .new-tweet textarea {
   margin: 5px 0;
   padding: 5px;
-  width: 100%
+  width: 100%;
+  max-width: 100%;
 }
 
 .new-tweet .counter {
   float: right;
   font-style: italic;
-
 }
