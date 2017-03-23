@@ -18,3 +18,15 @@
   color: #e8fdff;
   vertical-align: middle;
 }
+
+#nav-bar .btn-compose {
+  float: right;
+  /*font-weight: bold;*/
+  font-size: large;
+  border-style: solid;
+  margin: 5px 20px;
+  padding: 20px;
+  border-radius: 7px;
+  background-color: #ffffff;
+  opacity: 0.5;
+}

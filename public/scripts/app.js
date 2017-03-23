@@ -4,59 +4,13 @@
  * Reminder: Use (and do all your DOM work in) jQuery's document ready function
  */
 
-var data = [
-  {
-    "user": {
-      "name": "Newton",
-      "avatars": {
-        "small":   "https://vanillicon.com/788e533873e80d2002fa14e1412b4188_50.png",
-        "regular": "https://vanillicon.com/788e533873e80d2002fa14e1412b4188.png",
-        "large":   "https://vanillicon.com/788e533873e80d2002fa14e1412b4188_200.png"
-      },
-      "handle": "@SirIsaac"
-    },
-    "content": {
-      "text": "If I have seen further it is by standing on the shoulders of giants"
-    },
-    "created_at": 1461116232227
-  },
-  {
-    "user": {
-      "name": "Descartes",
-      "avatars": {
-        "small":   "https://vanillicon.com/7b89b0d8280b93e2ba68841436c0bebc_50.png",
-        "regular": "https://vanillicon.com/7b89b0d8280b93e2ba68841436c0bebc.png",
-        "large":   "https://vanillicon.com/7b89b0d8280b93e2ba68841436c0bebc_200.png"
-      },
-      "handle": "@rd" },
-    "content": {
-      "text": "Je pense , donc je suis"
-    },
-    "created_at": 1461113959088
-  },
-  {
-    "user": {
-      "name": "Johann von Goethe",
-      "avatars": {
-        "small":   "https://vanillicon.com/d55cf8e18b47d4baaf60c006a0de39e1_50.png",
-        "regular": "https://vanillicon.com/d55cf8e18b47d4baaf60c006a0de39e1.png",
-        "large":   "https://vanillicon.com/d55cf8e18b47d4baaf60c006a0de39e1_200.png"
-      },
-      "handle": "@johann49"
-    },
-    "content": {
-      "text": "Es ist nichts schrecklicher als eine tätige Unwissenheit."
-    },
-    "created_at": 1461113796368
-  }
-];
-
 function renderTweets(tweets) {
   let tweetsHTML = ''
   for (let tweet in tweets){
-    tweetsHTML += createTweetElement(tweets[tweet]);
+    tweetsHTML = createTweetElement(tweets[tweet]) + tweetsHTML;
   }
-  return tweetsHTML;
+  $('.tweets').html(tweetsHTML);
+  doHover()
 }
 
 function createTweetElement(tweet) {
@@ -82,15 +36,73 @@ function createTweetElement(tweet) {
   return html;
 }
 
-$( document ).ready(function() {
-  var $tweets = renderTweets(data);
-  $('.tweets').append($tweets);
-  $(this).find( ".footerButtons" ).hide();
-  $( ".tweet" ).hover(function() {
+function loadTweets(){
+  $.ajax({
+    url: '/tweets',
+    method: 'GET',
+    success: function (jsonTweets) {
+      renderTweets(jsonTweets);
+    }
+  });
+}
+
+function toggleCompose() {
+  $(document).find( ".new-tweet" ).hide();
+  $( ".btn-compose" ).hover(function() {
     $(this).css("opacity", "1");
-    $(this).find( ".footerButtons" ).show();
   }, function() {
     $(this).css("opacity", "0.5");
+  });
+  $( ".btn-compose" ).click(function() {
+    $(document).find( ".new-tweet" ).slideToggle( "slow" );
+    $( "#tweetText").focus();
+  });
+}
+
+function doHover() {
+  $(document).ajaxStop(function () {
+    toggleCompose()
     $(this).find( ".footerButtons" ).hide();
-  })
+
+    $( ".tweet" ).hover(function() {
+     $(this).css("opacity", "1");
+      $(this).find( ".footerButtons" ).show();
+    }, function() {
+      $(this).css("opacity", "0.5");
+      $(this).find( ".footerButtons" ).hide();
+    });
+  });
+}
+
+function validTweet(serializedTweet) {
+  tweet = serializedTweet.split("=")[1];
+  if (tweet.length > 140) {
+    alert("Error: Your tweet is too long - please make it shorter!");
+    return false;
+  } else if (tweet.length === 0 || tweet === 'null') {
+    alert("Error: Your tweet is blank - please grace us with  your thoughts!");
+    return false;
+  } else {
+    return true;
+  }
+
+}
+
+$( document ).ready(function() {
+  loadTweets()
+  $('#form-new-tweet').submit(function (ev) {
+    ev.preventDefault();
+    let tweetText = $('#form-new-tweet').serialize();
+    if (validTweet(tweetText)){
+      $.ajax({
+        type: "POST",
+        url: '/tweets',
+        data: tweetText,
+        success: function () {
+         loadTweets();
+         $('#tweetText').val('');
+        }
+      });
+    }
+  });
 });
