@@ -84,6 +84,7 @@ main.container {
 
 .tweet .tweetText {
   font-size: large;
+  word-wrap: break-word;
 }
 
 .tweet footer {
