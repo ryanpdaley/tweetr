@@ -11,7 +11,20 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 // The in-memory database of tweets. It's a basic object with an array in it.
-const db = require("./lib/in-memory-db");
+//const db = require("./lib/in-memory-db");
+const MongoClient = require("mongodb").MongoClient;
+const MONGODB_URI = "mongodb://localhost:27017/tweeter";
+var db;
+
+MongoClient.connect(MONGODB_URI, (err, dbConnection) => {
+  if(err) {
+    console.error("Could not connect to mongo")
+    return;
+  }
+  db = dbConnection
+  app.listen(PORT, () => {
+    console.log(`App running on port ${PORT} and ready to receive clients.`)
+  })
 
 // The `data-helpers` module provides an interface to the database of tweets.
 // This simple interface layer has a big benefit: we could switch out the
@@ -28,7 +41,4 @@ const tweetsRoutes = require("./routes/tweets")(DataHelpers);
 
 // Mount the tweets routes at the "/tweets" path prefix:
 app.use("/tweets", tweetsRoutes);
-
-app.listen(PORT, () => {
-  console.log("Example app listening on port " + PORT);
 });
